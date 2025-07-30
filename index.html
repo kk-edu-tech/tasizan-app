@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>足し算ドリル（iPhone最適化）</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: sans-serif;
+      font-size: 16px;
+      margin: 0;
+      padding: 10px;
+    }
+    h1 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+    button {
+      font-size: 16px;
+      padding: 8px 12px;
+      margin: 6px;
+      width: 90%;
+      max-width: 250px;
+      box-sizing: border-box;
+    }
+    .problem-area {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+    .term {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 40px;
+    }
+    .number {
+      font-size: 26px;
+      margin-bottom: 6px;
+    }
+    .beads {
+      display: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 140px;
+      gap: 10px;
+      margin: auto;
+    }
+    .dot {
+      width: 20px;
+      height: 20px;
+      background-color: tomato;
+      border-radius: 50%;
+    }
+    #your-container-id {
+    width:151px;
+    }
+
+    #closeHintBtn {
+      display: none;
+    }
+    #result, #score {
+      margin: 10px;
+      font-weight: bold;
+    }
+    #answerBox {
+      font-size: 22px;
+      border: 2px solid #888;
+      padding: 6px;
+      margin: 10px auto;
+      min-height: 32px;
+      width: 90%;
+      max-width: 250px;
+      background-color: #f9f9f9;
+    }
+    #keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      max-width: 250px;
+      margin: 6px auto;
+    }
+    #keypad button {
+      font-size: 20px;
+      padding: 12px 0;
+    }
+    .red {
+  background-color: red;
+  color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>たしざん</h1>
+
+  <div class="problem-area">
+    <div class="term">
+      <div class="number" id="num1">3</div>
+      <div class="beads" id="beads1"></div>
+    </div>
+    <div class="term">
+      <div class="number">+</div>
+    </div>
+    <div class="term">
+      <div class="number" id="num2">4</div>
+      <div class="beads" id="beads2"></div>
+    </div>
+  </div>
+
+  <button id="showHintBtn" onclick="showHint()">ヒントをみる</button>
+  <button id="closeHintBtn" onclick="hideHint()">ヒントをとじる</button>
+
+  <div id="answerBox"> </div>
+  <div id="keypad"></div>
+
+  <button onclick="checkAnswer()">こたえあわせ</button>
+  <div id="result"></div>
+  <div id="score">せいかい：0もん</div>
+  <button id="nextBtn" onclick="generateProblem()">つぎのもんだい</button>
+
+  <script>
+    let num1, num2, correctAnswer;
+    let correctCount = 0;
+    let userInput = "";
+
+    function generateProblem() {
+      num1 = Math.floor(Math.random() * 9) + 1;
+      num2 = Math.floor(Math.random() * 9) + 1;
+      correctAnswer = num1 + num2;
+      userInput = "";
+      updateAnswerBox();
+
+      document.getElementById("num1").innerText = num1;
+      document.getElementById("num2").innerText = num2;
+      document.getElementById("result").innerText = "";
+
+      document.getElementById("beads1").style.display = "none";
+      document.getElementById("beads2").style.display = "none";
+      document.getElementById("closeHintBtn").style.display = "none";
+      document.getElementById("showHintBtn").style.display = "inline-block";
+      document.getElementById("nextBtn").classList.remove("red");
+
+
+      drawBeads("beads1", num1);
+      drawBeads("beads2", num2);
+    }
+
+    function drawBeads(id, count) {
+  const container = document.getElementById(id);
+  container.innerHTML = "";
+  for (let i = 0; i < count; i++) {
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    container.appendChild(dot);
+      }
+    }
+
+    function showHint() {
+      document.getElementById("beads1").style.display = "flex";
+      document.getElementById("beads2").style.display = "flex";
+      document.getElementById("showHintBtn").style.display = "none";
+      document.getElementById("closeHintBtn").style.display = "inline-block";
+    }
+
+    function hideHint() {
+      document.getElementById("beads1").style.display = "none";
+      document.getElementById("beads2").style.display = "none";
+      document.getElementById("closeHintBtn").style.display = "none";
+      document.getElementById("showHintBtn").style.display = "inline-block";
+    }
+
+    function updateAnswerBox() {
+      document.getElementById("answerBox").innerText = userInput || " ";
+    }
+
+    function addInput(num) {
+      if (userInput.length < 2) {
+        userInput += num;
+        updateAnswerBox();
+      }
+    }
+
+    function deleteInput() {
+      userInput = userInput.slice(0, -1);
+      updateAnswerBox();
+    }
+
+    function createKeypad() {
+      const keypad = document.getElementById("keypad");
+      keypad.innerHTML = "";
+
+      for (let i = 1; i <= 9; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = i;
+        btn.onclick = () => addInput(i);
+        keypad.appendChild(btn);
+      }
+
+      const btn0 = document.createElement("button");
+      btn0.innerText = "0";
+      btn0.onclick = () => addInput(0);
+      keypad.appendChild(btn0);
+
+      const del = document.createElement("button");
+      del.innerText = "けす";
+      del.onclick = deleteInput;
+      keypad.appendChild(del);
+    }
+
+    function checkAnswer() {
+      const userAnswer = Number(userInput);
+      const result = userAnswer === correctAnswer
+        ? "せいかい！🎉"
+        : `ざんねん…こたえは ${correctAnswer} だよ`;
+      document.getElementById("result").innerText = result;
+      document.getElementById("nextBtn").classList.add("red");
+
+
+      if (userAnswer === correctAnswer) {
+        correctCount++;
+        document.getElementById("score").innerText = `せいかい：${correctCount}もん`;
+      }
+    }
+
+    // 初期化
+    createKeypad();
+    generateProblem();
+  </script>
+</body>
+</html>
